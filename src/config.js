@@ -1,4 +1,4 @@
-const CONTRACT_NAME = process.env.CONTRACT_NAME ||'advanced-lottery'
+const CONTRACT_NAME = process.env.CONTRACT_NAME ||'lottery.timthang.testnet'
 
 function getConfig(env) {
   switch (env) {

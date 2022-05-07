@@ -114,6 +114,19 @@ export function getTotalTickets(): u32 {
   return total_tickets;
 }
 
+/**
+ * get info (total tikcets, total pool, tickets balance for each account)
+ */
+export function getInfo(): void {
+  ticketsBalance.keys().forEach(account => {
+    logging.log("account " + account + " has " + ticketsBalance.getSome(account).toString() + " tickets.")
+  });
+  const total_tickets = getTotalTickets();
+  logging.log("TOTAL CIRCULATING TICKETS: " + total_tickets.toString());
+  const pool = getPool();
+  logging.log("CURRENT POOL: " + pool.toString());
+}
+
 
 /**
  * calculate the chance for every account to win the lottery, weight-based
@@ -126,6 +139,31 @@ export function play(): void {
   logging.log("TOTAL POOL = " + getPool().toString());
   logging.log("+++++++++++++++++++++++++++++++++++++++++++++");
 
+  account_list.forEach(account =>{
+  const arr = chance();
+  let threshold = util.parseFromString<u32>(arr[0].toString());
+  let bonus = util.parseFromString<u32>(arr[1].toString());
+  let top = util.parseFromString<u32>(arr[2].toString());
+  let number_of_top = util.parseFromString<u32>(arr[3].toString());
+    if(util.parseFromString<u32>(ticketsBalance.getSome(account).toString()) == top) {
+      let bonus_for_this = bonus/number_of_top;
+      logging.log("ACCOUNT " + account + " HAS " + bonus_for_this.toString() + " BONUS TICKETS (AS THE #1 TICKETS HOLDER)");
+    }
+  });
+  logging.log("+++++++++++++++++++++++++++++++++++++++++++++++");
+
+  account_list.forEach(account =>{
+    const arr = chance();
+    let threshold = util.parseFromString<u32>(arr[0].toString());
+    let bonus = util.parseFromString<u32>(arr[1].toString());
+    let top = util.parseFromString<u32>(arr[2].toString());
+    let number_of_top = util.parseFromString<u32>(arr[3].toString());
+      if(util.parseFromString<u32>(ticketsBalance.getSome(account).toString()) < threshold) {
+        logging.log("ACCOUNT " + account + " WILL NOT BE ABLE TO TAKE PART IN THE LOTTERY DUE TO THE TICKETS BALANCE IS NOW ENOUGH");
+      }
+    });
+    logging.log("+++++++++++++++++++++++++++++++++++++++++++++++");  
+
   while(storage.get<string>("winner") == null) {
     ticketsBalance.keys().forEach(account => {
       const arr = chance();
@@ -137,15 +175,12 @@ export function play(): void {
       let tickets: string = ticketsBalance.getSome(account).toString();
       let tickets_in_u32: u32 = util.parseFromString<u32>(tickets);
 
-      logging.log(account + " has " + tickets + " tickets")
-
       if(!(tickets_in_u32 < threshold)) {
         const rng = new RNG<u32>(1, getTotalTickets());
         const roll = rng.next();
-        // logging.log(account + " has " + tickets + " tickets...")
-        logging.log("roll: " + roll.toString());
+        // logging.log("roll: " + roll.toString());
         if(tickets_in_u32 == top) {
-          logging.log("VIP: + " + (bonus/number_of_top).toString() + " TICKETS");
+          // logging.log("VIP: + " + (bonus/number_of_top).toString() + " TICKETS");
           if(roll <= (tickets_in_u32 + bonus/number_of_top) ){
             if(storage.get<string>("winner") == null){
               storage.set("winner", account);
@@ -167,6 +202,8 @@ export function play(): void {
     logging.log("WINNER: " + storage.getSome<string>("winner"));
     logging.log("=====================++++++++++================");
   }
+
+  sendReward();
 }
 
 
@@ -205,6 +242,9 @@ export function sendReward(): void {
   const reward_pool: u128 = u128.mul(getPool(), ONE_NEAR);
   const reward_to_winner: u128 = u128.div(u128.mul(reward_pool, u128.from(95)), u128.from(100))
   receiver.transfer(reward_to_winner);
+  logging.log("********************************************");
+  logging.log("SENT " + asNEAR(reward_to_winner).toString() + " NEAR TO " + getWinner());
+  logging.log("********************************************");
   reset();
 }
 
@@ -218,7 +258,7 @@ export function sendReward(): void {
  * note: in case there is no account with balance less than 5% total tickets, 
  * the account with lowest balance will be rejected to take part in the lottery and its balance will be the bonus.
  */
-function chance(): u128[] {
+export function chance(): u128[] {
   const array = new Array<u128>(4);
   array[3] = u128.from(0);
   const sorted_tickets_balance = ticketsBalance.values().sort();
@@ -232,15 +272,12 @@ function chance(): u128[] {
       array[1] = a;
     }
   }
-
+  array[0] = sorted_tickets_balance[0];
   for(let i = 0; i < sorted_tickets_balance.length; i++) {
-    if(sorted_tickets_balance[i] = sorted_tickets_balance[sorted_tickets_balance.length-1]) {
+    if(sorted_tickets_balance[i] == sorted_tickets_balance[(sorted_tickets_balance.length)-1]) {
       array[3] = u128.add(array[3], u128.from(1));
     }
   }
-
-  array[0] = sorted_tickets_balance[0];
-
   array[2] = sorted_tickets_balance.pop();
   return array;
 }

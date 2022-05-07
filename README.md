@@ -18,6 +18,18 @@ DESCRIPTION
    - `near call <contractName> play --accountId=<your_account.testnet>` 
 
 
+DEMO (CLI)
+===============
+1. `yarn deploy` 
+   - deploy contract to `lottery.timthang.testnet` 
+2. start buying some tickets
+   - `near call lottery.timthang.testnet buyTickets --accountId=timthang1.testnet --amount=1` : buy 10 tickets for account timthang1.testnet
+  ![alt text](./img/buy10tickets.png)
+   - buy some more and call `getInfo()`:
+   ![alt text](./img/getinfo.png)
+3. start the lottery and get the winner, send 95% pool to the winner and reset the lottery:
+   ![alt text](./img/play.png)
+
 
 Quick Start
 ===========
