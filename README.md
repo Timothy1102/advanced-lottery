@@ -29,6 +29,7 @@ DEMO (CLI)
    ![alt text](./img/getinfo.png)
 3. start the lottery and get the winner, send 95% pool to the winner and reset the lottery:
    ![alt text](./img/play.png)
+   - (note: set `--gas` tag to 300000000000000 to access more blockchain storage)
 
 
 Quick Start
