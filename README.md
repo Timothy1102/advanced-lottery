@@ -1,7 +1,22 @@
 advanced-lottery
 ==================
 
-This [React] app was initialized with [create-near-app]
+
+
+DESCRIPTION
+===============
+
+1. Any account can buy "Tickets" to take part in the lottery, with the rate of 1 NEAR = 10 Tickets. the more tickets you have, the more chance you have to win the pot.
+   
+   -  to buy tickets: `near call <contractName> buyTickets --accountId=<your_account.testnet> --amount=<amount in NEAR you want to buy>`
+  
+2. Everytime someone buys tickets, the amount of NEAR they used to buy gets added to the "pool", the winner of the lottery will receive 95% of this pool, 5% to the host (contract account).
+3. There's a special rule: top 5% accounts with lowest tickets in balance will not be able to take part in the lottery, and that amount of tickets will be sent to the top #1 account with highest tickets in balance as a bonus. In case there's no one holding less than 5% of the total tickets in circulation, the account holding lowest tickets will not be able to take part in the lottery, and its tickets will be sent to the #1 account. So you should not be in the top lowest tickets balance accounts if you want a chance to win the lottery.
+
+4. To start the lottery, call the `play()` function in the smart contract:
+   
+   - `near call <contractName> play --accountId=<your_account.testnet>` 
+
 
 
 Quick Start
@@ -85,11 +100,6 @@ As you can see in `package.json`, this does two things:
 1. builds & deploys smart contract to NEAR TestNet
 2. builds & deploys frontend code to GitHub using [gh-pages]. This will only work if the project already has a repository set up on GitHub. Feel free to modify the `deploy` script in `package.json` to deploy elsewhere.
 
-
-Troubleshooting
-===============
-
-On Windows, if you're seeing an error containing `EPERM` it may be related to spaces in your path. Please see [this issue](https://github.com/zkat/npx/issues/209) for more details.
 
 
   [React]: https://reactjs.org/

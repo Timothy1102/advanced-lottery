@@ -46,6 +46,9 @@ export function setGreeting(message: string): void {
  */
 const ticketsBalance = new PersistentUnorderedMap<string, u128>("tb");
 
+/**
+ * represent one NEAR in yocto (10e24)
+ */
 const ONE_NEAR = u128.from("1000000000000000000000000");
 
 
@@ -215,7 +218,7 @@ export function sendReward(): void {
  * note: in case there is no account with balance less than 5% total tickets, 
  * the account with lowest balance will be rejected to take part in the lottery and its balance will be the bonus.
  */
-export function chance(): u128[] {
+function chance(): u128[] {
   const array = new Array<u128>(4);
   array[3] = u128.from(0);
   const sorted_tickets_balance = ticketsBalance.values().sort();
